@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Fitting linear models in R</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Yue Jiang" />
+    <link href="optimization_files/remark-css/default.css" rel="stylesheet" />
+    <link href="optimization_files/remark-css/default-fonts.css" rel="stylesheet" />
+    <link rel="stylesheet" href="sta440-slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Fitting linear models in R
+### Yue Jiang
+### Duke University
+
+---
+
+
+
+
+
+
+### Estimating bike crashes in NC counties
+
+&lt;img src="img/bike_crash.jpg" width="100%" style="display: block; margin: auto;" /&gt;
+&lt;!-- .center[Image credit: Petar Milošević, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0), via Wikimedia Commons] --&gt;
+
+---
+
+### Data
+
+
+```
+## # A tibble: 100 x 2
+##    county    crashes
+##    &lt;chr&gt;       &lt;dbl&gt;
+##  1 Alamance       77
+##  2 Alexander       1
+##  3 Alleghany       1
+##  4 Anson           7
+##  5 Ashe            4
+##  6 Avery           5
+##  7 Beaufort       37
+##  8 Bertie         10
+##  9 Bladen          9
+## 10 Brunswick      88
+## # ... with 90 more rows
+```
+Suppose we thought these crashes came from a Poisson distribution. 
+.question[
+How might we estimate the parameter of that Poisson distribution, given our
+observed data?
+]
+
+---
+  
+&lt;!-- ### Maximum likelihood estimation --&gt;
+
+&lt;!-- If `\(Y \sim Pois(\lambda)\)`, then --&gt;
+
+&lt;!-- \begin{align*} --&gt;
+&lt;!--   P(Y = y) = \frac{\lambda^y e^{-\lambda}}{y!} --&gt;
+&lt;!-- \end{align*} --&gt;
+
+&lt;!-- .question[ --&gt;
+&lt;!-- If `\(Y_1, Y_2, \cdots, Y_n\)` are each i.i.d. distributed with `\(Pois(\lambda)\)`, --&gt;
+&lt;!-- then what is the **Maximum Likelihood Estimate** (MLE) of `\(\lambda\)`? --&gt;
+
+### Maximum likelihood estimation
+
+We can maximize the .vocab[likelihood function]. Assuming the observations are
+i.i.d., in general we have:
+
+`\begin{align*}
+\mathcal{L}(\lambda | Y) &amp;= f(y_1, y_2, \cdots, y_n | \lambda)\\
+&amp;= f(y_1 | \lambda)f(y_2 | \lambda) \cdots f(y_n | \lambda)\\
+&amp;= \prod\limits^{n}_{i = 1} f(y_i | \lambda).
+\end{align*}`
+
+The likelihood function is the probability of "seeing our observed data," 
+**given** a value of `\(\lambda\)`. Do not get `\(f(y_i | \lambda)\)` confused with 
+`\(f(\lambda | y_i)\)`!
+
+---
+
+### Maximum likelihood estimation
+
+For our Poisson example, we thus have:
+
+`\begin{align*}
+\mathcal{L}(\lambda | Y) &amp;= \prod\limits^{n}_{i = 1} f(y_i | \lambda)\\
+&amp;= \prod\limits_{i = 1}^n \frac{\lambda^y_i e^{-\lambda}}{y_i!}\\
+\log \mathcal{L}(\lambda | Y) &amp;= \sum_{i = 1}^n \left( y_i\log \lambda - \lambda - \log y_i! \right)\\
+&amp;= \log \lambda \sum_{i = 1}^n y_i - n\lambda - \sum_{i = 1}^n \log y_i!
+\end{align*}`
+
+.question[
+Why do we maximize the log-likelihood function here?
+]
+
+---
+
+### Maximum likelihood estimation
+
+Setting the .vocab[score function] equal to 0:
+
+`\begin{align*}
+\frac{\partial}{\partial\lambda}\log \mathcal{L}(\lambda | Y) = \frac{1}{\lambda}\sum_{i = 1}^n y_i - n &amp;\stackrel{set}{=} 0\\
+\implies \hat{\lambda} = \frac{1}{n}\sum_{i = 1}^n y_i,
+\end{align*}`
+
+as expected. Next, let's verify that `\(\hat{\lambda}\)` is indeed a maximum:
+
+`\begin{align*}
+\frac{\partial^2}{\partial\lambda^2}\log \mathcal{L}(\lambda | Y) &amp;= -\frac{1}{\lambda^2}\sum_{i = 1}^n y_i - n\\
+&amp;&lt; 0.
+\end{align*}`
+
+---
+
+### Can we do better?
+
+
+```
+## # A tibble: 100 x 6
+##    county       pop med_hh_income traffic_vol pct_rural crashes
+##    &lt;chr&gt;      &lt;dbl&gt;         &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+##  1 Alamance  166436          50.5         182        29      77
+##  2 Alexander  37353          49.1          13        73       1
+##  3 Alleghany  11161          39.7          28       100       1
+##  4 Anson      24877          38            79        79       7
+##  5 Ashe       27109          41.9          18        85       4
+##  6 Avery      17505          41.7          35        89       5
+##  7 Beaufort   47079          46.4          53        66      37
+##  8 Bertie     19026          35.4          24        83      10
+##  9 Bladen     33190          37            19        91       9
+## 10 Brunswick 136744          60.2          43        43      88
+## # ... with 90 more rows
+```
+
+We might expect that more populous, more urban counties might have more crashes.
+There might also be a relationship with traffic volume. 
+
+.quesiton[
+Can we incorporate this additional information while accounting for potential
+confounding?
+]
+
+---
+
+### Poisson regression
+
+`\begin{align*}
+\log\large(\underbrace{E(Y | \mathbf{X}}_{\lambda})\large) = \beta_0 + \mathbf{X}^T\boldsymbol\beta
+\end{align*}`
+
+.vocab[Generalized linear model] often used for count (or rate) data
+- Assumes outcome has Poisson distribution
+- Canonical link: log of conditional expectation of response has linear 
+relationship with predictors
+
+.question[
+Can we differentiate the (log) likelihood function, set it equal to zero, and
+solve for the MLEs for `\(\boldsymbol\beta = (\beta_0, \beta_1, \cdots, \beta_p)\)`
+as before?
+]
+
+---
+
+### Poisson regression
+
+`\begin{align*}
+\log \mathcal{L}&amp;= \sum_{i = 1}^n \left( y_i\log \lambda - \lambda - \log y_i! \right)\\
+&amp;= \sum_{i = 1}^n y_i\mathbf{X}_i\boldsymbol\beta - e^{\mathbf{X}_i\boldsymbol\beta} - \log y_i!
+\end{align*}`
+
+We would like to solve the equations
+
+`\begin{align*}
+\left(\frac{\partial \log \mathcal{L}}{\partial \beta_j}\right) \stackrel{set}{=} \mathbf{0},
+\end{align*}`
+
+but there is no closed-form solution, as this is a transcendental equation in 
+the parameters of interest.
+
+.question[
+How might we solve these equations numerically?
+]
+
+---
+
+### A one-dimensional problem
+
+Suppose you're trying to find the maximum of the following function:
+
+`\begin{align*}
+f(x) = \frac{x + \log(x)}{2^x}
+\end{align*}`
+
+Let's try differentiating, setting equal to 0, and solving:
+
+`\begin{align*}
+\frac{d}{dx}f(x) = 2^{-x}\left(1 + \frac{1}{x} - \log(2)(x + \log(x)) \right).
+\end{align*}`
+
+We run into a similar problem: we cannot algebraically solve for the root of 
+this equation.
+
+---
+
+### A one-dimensional problem
+
+&lt;img src="optimization_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+
+.question[
+It looks lke the maximum is a bit shy of 2 (trust me on this one, it's a global
+maximum). How might we find where it is?
+]
+
+---
+
+### A one-dimensional problem
+
+&lt;img src="img/newton.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+### A one-dimensional problem
+
+.vocab[Newton-Raphson] algorithm for root finding is based on second-order Taylor 
+approximation around true root:
+
+- Start with initial guess `\(\theta^{(0)}\)`
+- Iterate `\(\theta^{(t + 1)} = \theta^{(t)} - \frac{f^\prime(\theta^{(t)})}{f^{\prime\prime} (\theta^{(t)})}\)`
+- Stop when convergence criterion is satisfied
+
+Although it requires explicit forms of first two derivatives, the convergence
+speed is quite fast. 
+
+There are some necessary conditions for convergence, but this is beyond the
+scope of STA 440. Many likelihood functions you are likely to encounter (e.g., 
+GLMs with canonical link) will in fact converge from any starting value.
+
+---
+
+### A one-dimensional problem
+
+&lt;img src="optimization_files/figure-html/unnamed-chunk-7-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+### A one-dimensional problem
+
+`\begin{align*}
+f(x) &amp;= \frac{x + \log(x)}{2^x} \\
+\frac{d}{dx}f(x) &amp;= 2^{-x}\left(1 + \frac{1}{x} - \log(2)(x + \log(x)) \right).
+\end{align*}`
+
+
+```r
+testing &lt;- function(x){
+  2^(-1 * x) * (1 + 1/x - log(2) * (x + log(x)))
+}
+
+testing(1.729)
+```
+
+```
+## [1] 0.0001174952
+```
+
+That's pretty good (only six steps from starting guess of 0.3)!
+
+---
+
+### Newton-Raphson in higher dimensions
+
+.vocab[Score vector] and .vocab[Hessian] for `\(\log \mathcal{L}(\boldsymbol\theta | \mathbf{X})\)` with `\(\boldsymbol\theta = (\theta_1, \cdots, \theta_p)^T\)`:
+
+`$$\nabla \log \mathcal{L} = \begin{pmatrix}
+\frac{\partial \log \mathcal{L}}{\partial \boldsymbol\theta_1}\\
+\vdots\\
+\frac{\partial \log \mathcal{L}}{\partial \boldsymbol\theta_p}
+\end{pmatrix}$$`
+`$$\nabla^2 \log \mathcal{L} = \begin{pmatrix}
+\frac{\partial^2 \log\mathcal{L}}{\partial \theta_1^2} &amp; \frac{\partial^2 \log\mathcal{L}}{\partial \theta_1 \theta_2} &amp; \cdots &amp; \frac{\partial^2 \log\mathcal{L}}{\partial \theta_1\theta_p}\\
+\frac{\partial^2 \log\mathcal{L}}{\partial \theta_2\theta_1} &amp; \frac{\partial^2 \log\mathcal{L}}{\partial \theta_2^2} &amp; \cdots &amp; \frac{\partial^2 \log\mathcal{L}}{\partial \theta_2\theta_p} \\
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+\frac{\partial^2 \log\mathcal{L}}{\partial \theta_p\theta_1} &amp; \frac{\partial^2 \log\mathcal{L}}{\partial \theta_p\theta_2} &amp; \cdots &amp; \frac{\partial^2 \log\mathcal{L}}{\partial \theta_p^2}
+\end{pmatrix}$$`
+ 
+---
+
+### Newton-Raphson in higher dimensions
+
+We can modify the Newton-Raphson algorithm for higher dimensions: 
+
+- Start with initial guess `\(\boldsymbol\theta ^{(0)}\)`
+- Iterate `\(\boldsymbol\theta^{(t + 1)} = \boldsymbol\theta^{(t)} - \left(\nabla^2\log\mathcal{L}(\boldsymbol\theta^{(t)} | \mathbf{X}) \right)^{-1} \left( \nabla \log\mathcal{L}(\boldsymbol\theta^{(t)} | \mathbf{X}) \right)\)`
+- Stop when convergence criterion is satisfied
+
+Under certain conditions, a global maximum exists; this again is guaranteed for 
+many common applications. 
+
+Computing the Hessian can be computationally demanding (and annoying), but there 
+are ways around it in practice. 
+
+---
+
+### Poisson regression
+
+`\begin{align*}
+\log \mathcal{L}&amp;= \sum_{i = 1}^n y_i\mathbf{X}_i\boldsymbol\beta - e^{\mathbf{X}_i\boldsymbol\beta} - \log y_i!\\
+\nabla \log \mathcal{L}&amp;= \sum_{i = 1}^n \left(y_i - e^{\mathbf{X}_i\boldsymbol\beta}\right)\mathbf{X}_i^T\\
+\nabla^2 \log \mathcal{L} &amp;= -\sum_{i = 1}^n e^{\mathbf{X}_i\boldsymbol\beta}\mathbf{X}_i\mathbf{X}_i^T
+\end{align*}`
+
+Newton-Raphson update steps for Poisson regression: 
+
+`\begin{align*}
+\boldsymbol\beta^{(t+1)} &amp;= \boldsymbol\beta^{(t)} - \left(-\sum_{i = 1}^n e^{\mathbf{X}_i\boldsymbol\beta}\mathbf{X}_i\mathbf{X}_i^T \right)^{-1}\left(\sum_{i = 1}^n \left(y_i - e^{\mathbf{X}_i\boldsymbol\beta}\right)\mathbf{X}_i^T \right)
+\end{align*}`
+
+---
+
+### Back to bike crashes
+
+
+```
+## # A tibble: 100 x 6
+##    county       pop med_hh_income traffic_vol pct_rural crashes
+##    &lt;chr&gt;      &lt;dbl&gt;         &lt;dbl&gt;       &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+##  1 Alamance  166436          50.5         182        29      77
+##  2 Alexander  37353          49.1          13        73       1
+##  3 Alleghany  11161          39.7          28       100       1
+##  4 Anson      24877          38            79        79       7
+##  5 Ashe       27109          41.9          18        85       4
+##  6 Avery      17505          41.7          35        89       5
+##  7 Beaufort   47079          46.4          53        66      37
+##  8 Bertie     19026          35.4          24        83      10
+##  9 Bladen     33190          37            19        91       9
+## 10 Brunswick 136744          60.2          43        43      88
+## # ... with 90 more rows
+```
+
+- `pop`: county population
+- `med_hh_income`: median household income in thousands
+- `traffic_vol`: mean traffic volume per meter of major roadways
+- `pct_rural`: percentage of county population living in rural area
+
+---
+
+### Back to bike crashes
+
+Let's fit a model with `traffic_vol` and `pct_rural` for now:
+
+
+```r
+m1 &lt;- glm(crashes ~ traffic_vol + pct_rural, 
+          data = bike, family = "poisson")
+
+round(summary(m1)$coef, 6)
+```
+
+```
+##              Estimate Std. Error    z value Pr(&gt;|z|)
+## (Intercept)  5.982181   0.053749 111.298625        0
+## traffic_vol  0.001541   0.000166   9.262671        0
+## pct_rural   -0.044558   0.000875 -50.919036        0
+```
+
+.question[
+What might we conclude / interpret from this model?
+]
+
+---
+
+### Newton-Raphson (rough) implementation
+
+Newton-Raphson update steps for Poisson regression: 
+
+`\begin{align*}
+\boldsymbol\beta^{(t+1)} &amp;= \boldsymbol\beta^{(t)} - \left(-\sum_{i = 1}^n e^{\mathbf{X}_i\boldsymbol\beta}\mathbf{X}_i\mathbf{X}_i^T \right)^{-1}\left(\sum_{i = 1}^n \left(y_i - e^{\mathbf{X}_i\boldsymbol\beta}\right)\mathbf{X}_i^T \right)
+\end{align*}`
+
+Function for score vector, given vector `beta`, matrix `X`, and vector 
+`y`:
+
+
+```r
+d1func &lt;- function(beta, X, y){
+  d1 &lt;- rep(0, length(beta))
+  for(i in 1:length(y)){
+    d1 &lt;- d1 + (y[i] - exp(X[i,] %*% beta)) %*% X[i,]
+  }
+  return(colSums(d1))
+}
+```
+
+---
+
+### Newton-Raphson (rough) implementation
+
+Newton-Raphson update steps for Poisson regression: 
+
+`\begin{align*}
+\boldsymbol\beta^{(t+1)} &amp;= \boldsymbol\beta^{(t)} - \left(-\sum_{i = 1}^n e^{\mathbf{X}_i\boldsymbol\beta}\mathbf{X}_i\mathbf{X}_i^T \right)^{-1}\left(\sum_{i = 1}^n \left(y_i - e^{\mathbf{X}_i\boldsymbol\beta}\right)\mathbf{X}_i^T \right)
+\end{align*}`
+
+Function for Hessian, given vector `beta`, matrix `X`, and vector 
+`y`:
+
+
+```r
+d2func &lt;- function(beta, X, y){
+  d2 &lt;- matrix(0, nrow = length(beta), ncol = length(beta))
+  for(i in 1:length(y)){
+    d2 &lt;- d2 - t((exp(X[i,] %*% beta)) %*% X[i,]) %*% (X[i,])
+  }
+  return(d2)
+}
+```
+
+---
+
+### Newton-Raphson (rough) implementation
+
+Some bookkeeping: 
+
+
+```r
+beta &lt;- c(mean(log(bike$crashes)), 0, 0)
+X &lt;- cbind(1, bike$traffic_vol, bike$pct_rural)
+y &lt;- bike$crashes
+iter &lt;- 1
+delta &lt;- 1
+
+temp &lt;- matrix(0, nrow = 500, ncol = 3)
+```
+
+---
+
+### Newton-Raphson (rough) implementation
+
+Actual Newton-Raphson implementation:
+
+`\begin{align*}
+\boldsymbol\beta^{(t+1)} &amp;= \boldsymbol\beta^{(t)} - \left(-\sum_{i = 1}^n e^{\mathbf{X}_i\boldsymbol\beta}\mathbf{X}_i\mathbf{X}_i^T \right)^{-1}\left(\sum_{i = 1}^n \left(y_i - e^{\mathbf{X}_i\boldsymbol\beta}\right)\mathbf{X}_i^T \right)
+\end{align*}`
+
+
+```r
+while(delta &gt; 0.000001 &amp; iter &lt; 500){
+  old &lt;- beta
+  beta &lt;- old - solve(d2func(beta = beta, X = X, y = y)) %*% 
+                d1func(beta = beta, X = X, y = y)
+  temp[iter,] &lt;- beta
+  
+  delta &lt;- sqrt(sum((beta - old)^2))
+  iter &lt;- iter + 1
+}
+```
+
+---
+
+### Newton-Raphson (rough) implementation
+
+
+```r
+iter
+```
+
+```
+## [1] 22
+```
+
+```r
+delta
+```
+
+```
+## [1] 3.911961e-07
+```
+
+```r
+beta
+```
+
+```
+##             [,1]
+## [1,]  5.98218054
+## [2,]  0.00154064
+## [3,] -0.04455809
+```
+
+```r
+m1$coefficients
+```
+
+```
+## (Intercept) traffic_vol   pct_rural 
+##  5.98218054  0.00154064 -0.04455809
+```
+
+---
+
+### Back to bike crashes
+
+&lt;img src="optimization_files/figure-html/unnamed-chunk-16-1.png" style="display: block; margin: auto;" /&gt;&lt;img src="optimization_files/figure-html/unnamed-chunk-16-2.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+### Back to bike crashes
+
+`\begin{align*}
+\log\left(E(Y | \mathbf{X})\right) &amp;= \beta_0 + \beta_1(pop) + \beta_2(traffic) + \beta_3(rural)\\
+\end{align*}`
+
+```r
+m2 &lt;- glm(crashes ~ traffic_vol + pct_rural + pop, 
+          data = bike, family = "poisson")
+```
+
+`\begin{align*}
+\log\left( \frac{E(Y | \mathbf{X})}{pop} \right) &amp;= \beta_0 + \beta_1(traffic) + \beta_2(rural)
+\end{align*}`
+
+```r
+m3 &lt;- glm(crashes ~ traffic_vol + pct_rural, offset = log(pop),
+          data = bike, family = "poisson")
+```
+
+.question[
+What are the differences in the two models above?
+]
+
+---
+
+### Back to bike crashes
+
+`\begin{align*}
+\log\left( \frac{E(Y | \mathbf{X})}{pop} \right) &amp;= \beta_0 + \beta_1(traffic) + \beta_2(rural) \\
+\log\left(E(Y | \mathbf{X})\right) &amp;=  \beta_0 + \beta_1(traffic) + \beta_2(rural) - \log(pop)
+\end{align*}`
+
+Here, we are using `pop` as an .vocab[offset]. This means that our dependent 
+variable is actually a *rate*, even though we are providing counts, and we can
+look at covariate effects directly on this rate.
+
+If we use `pop` as a covariate, then the response is no longer a rate of bike
+crashes per unit population. However, we would be able to assess association
+between population and number of bike crashes (conditionally on traffic volume
+and urbanicity).
+
+---
+
+### Back to bike crashes
+
+
+```r
+round(summary(m1)$coef, 6)
+```
+
+```
+##              Estimate Std. Error    z value Pr(&gt;|z|)
+## (Intercept)  5.982181   0.053749 111.298625        0
+## traffic_vol  0.001541   0.000166   9.262671        0
+## pct_rural   -0.044558   0.000875 -50.919036        0
+```
+
+```r
+round(summary(m2)$coef, 6)
+```
+
+```
+##              Estimate Std. Error    z value Pr(&gt;|z|)
+## (Intercept)  5.655725   0.054837 103.136325 0.000000
+## traffic_vol -0.000093   0.000179  -0.518756 0.603931
+## pct_rural   -0.037761   0.000878 -43.015409 0.000000
+## pop          0.000001   0.000000  30.215337 0.000000
+```
+
+```r
+round(summary(m3)$coef, 6)
+```
+
+```
+##              Estimate Std. Error     z value Pr(&gt;|z|)
+## (Intercept) -6.916803   0.054480 -126.961100 0.000000
+## traffic_vol -0.000047   0.000171   -0.272118 0.785531
+## pct_rural   -0.010936   0.000857  -12.766690 0.000000
+```
+
+---
+
+### Poisson regression with offset
+
+.question[
+Can we simply use `bike$crashes/bike$pop` as our outcome variable in the
+code we've already written?
+]
+
+
+```r
+beta &lt;- c(mean(log(bike$crashes)), 0, 0)
+X &lt;- cbind(1, bike$traffic_vol, bike$pct_rural)
+y &lt;- bike$crashes / bike$pop
+iter &lt;- 1
+delta &lt;- 1
+
+temp &lt;- matrix(0, nrow = 500, ncol = 3)
+
+while(delta &gt; 0.000001 &amp; iter &lt; 500){
+  old &lt;- beta
+  beta &lt;- old - solve(d2func(beta = beta, X = X, y = y)) %*% 
+                d1func(beta = beta, X = X, y = y)
+  temp[iter,] &lt;- beta
+  
+  delta &lt;- sqrt(sum((beta - old)^2))
+  iter &lt;- iter + 1
+}
+```
+
+---
+
+### Poisson regression with offset
+
+
+```r
+round(beta, 6)
+```
+
+```
+##           [,1]
+## [1,] -6.810266
+## [2,]  0.000314
+## [3,] -0.011783
+```
+
+```r
+round(m3$coefficients, 6)
+```
+
+```
+## (Intercept) traffic_vol   pct_rural 
+##   -6.916803   -0.000047   -0.010936
+```
+
+.question[
+They're close, but not quite right. Did something go wrong?
+]
+
+---
+
+### Poisson regression with offset
+
+
+```r
+m3_wrong &lt;- m2 &lt;- glm(crashes/pop ~ traffic_vol + pct_rural, 
+          data = bike, family = "poisson")
+
+round(m3_wrong$coefficients, 6)
+```
+
+```
+## (Intercept) traffic_vol   pct_rural 
+##   -6.810266    0.000314   -0.011783
+```
+
+```r
+round(beta, 6)
+```
+
+```
+##           [,1]
+## [1,] -6.810266
+## [2,]  0.000314
+## [3,] -0.011783
+```
+
+.question[
+What's happening? (keep in mind, all output on this page is **wrong**)
+]
+
+---
+
+### Poisson regression with offset
+
+Let's denote an offset term by `\(\omega\)`. If we directly use `crashes/pop` in 
+our Poisson regression likelihood, we would have a log-likelihood along the 
+lines of
+
+`\begin{align*}
+\log \mathcal{L}&amp;\propto \sum_{i = 1}^n \frac{y_i}{\omega_i}\mathbf{X}_i\boldsymbol\beta - e^{\mathbf{X}_i\boldsymbol\beta}
+\end{align*}`
+
+This is incorrect. We cannot assume `crashes/pop` has a Poisson distribution.
+
+
+---
+
+### Poisson regression with offset
+
+If we write the log-likelihood for a Poisson regression with offset correctly, 
+we have:
+
+`\begin{align*}
+\log\left(E(Y | \mathbf{X})\right) &amp;= \beta_0 + \mathbf{X}^T\boldsymbol\beta - \log \boldsymbol\omega \\
+\log \mathcal{L}&amp;\propto \sum_{i = 1}^n y_i\mathbf{X}_i\boldsymbol\beta - \omega_i e^{\mathbf{X}_i\boldsymbol\beta}
+\end{align*}`
+
+Thus, we must use this *correct* log-likelihood to determine the score vector
+and Hessian for our Newton-Raphson implementation:
+
+`\begin{align*}
+\nabla \log \mathcal{L}&amp;= \sum_{i = 1}^n \left(y_i - \omega_ie^{\mathbf{X}_i\boldsymbol\beta}\right)\mathbf{X}_i^T\\
+\nabla^2 \log \mathcal{L} &amp;= -\sum_{i = 1}^n \omega_i e^{\mathbf{X}_i\boldsymbol\beta}\mathbf{X}_i\mathbf{X}_i^T
+\end{align*}`
+
+---
+
+### Poisson regression with offset
+
+Newton-Raphson update steps for Poisson regression with offset: 
+
+`\begin{align*}
+\boldsymbol\beta^{(t+1)} &amp;= \boldsymbol\beta^{(t)} - \left(-\sum_{i = 1}^n \omega_ie^{\mathbf{X}_i\boldsymbol\beta}\mathbf{X}_i\mathbf{X}_i^T \right)^{-1}\left(\sum_{i = 1}^n \left(y_i - \omega_i e^{\mathbf{X}_i\boldsymbol\beta}\right)\mathbf{X}_i^T \right)
+\end{align*}`
+
+In writing code, we must now specify the offset `\(\omega\)` in addition to the
+observed data `\(\mathbf{X}\)`, `\(y\)`, and candidate `\(\boldsymbol\beta\)`s.
+
+---
+
+### Poisson regression with offset
+
+Functions for score vector and Hessian (including offset term):
+
+
+```r
+d1ofs &lt;- function(beta, X, y, offset){
+  d1 &lt;- rep(0, length(beta))
+  for(i in 1:length(y)){
+    d1 &lt;- d1 + (y[i] -  offset[i] *exp(X[i,] %*% beta)) %*% X[i,]
+  }
+  return(colSums(d1))
+}
+
+d2ofs &lt;- function(beta, X, y, offset){
+  d2 &lt;- matrix(0, nrow = length(beta), ncol = length(beta))
+  for(i in 1:length(y)){
+    d2 &lt;- d2 - offset[i] * t((exp(X[i,] %*% beta)) %*% X[i,]) %*% (X[i,])
+  }
+  return(d2)
+}
+```
+
+---
+
+### Poisson regression with offset
+
+Implementing Newton-Raphson:
+
+
+```r
+beta &lt;- c(mean(log(bike$crashes)), 0, 0)
+X &lt;- cbind(1, bike$traffic_vol, bike$pct_rural)
+y &lt;- bike$crashes
+offset &lt;- bike$pop
+iter &lt;- 1
+delta &lt;- 1
+
+temp &lt;- matrix(0, nrow = 500, ncol = 3)
+
+while(delta &gt; 0.000001 &amp; iter &lt; 500){
+  old &lt;- beta
+  beta &lt;- old - solve(d2ofs(beta = beta, X = X, y = y, offset = offset)) %*% 
+                d1ofs(beta = beta, X = X, y = y, offset = offset)
+  temp[iter,] &lt;- beta
+  
+  delta &lt;- sqrt(sum((beta - old)^2))
+  iter &lt;- iter + 1
+}
+```
+
+---
+
+### Poisson regression with offset
+
+
+```r
+round(beta, 6)
+```
+
+```
+##           [,1]
+## [1,] -6.916803
+## [2,] -0.000047
+## [3,] -0.010936
+```
+
+```r
+round(m3$coefficients, 6)
+```
+
+```
+## (Intercept) traffic_vol   pct_rural 
+##   -6.916803   -0.000047   -0.010936
+```
+
+Our manual Newton-Raphson code lines up, as expected.
+
+---
+
+### Fisher Scoring
+
+&lt;img src="img/fisher-scoring.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+### Fisher Scoring
+
+Fisher Scoring replaces `\(\nabla^2 \log \mathcal{L}\)` with the expected 
+Fisher information:
+
+`\begin{align*}
+E\Large(\left(\nabla\log\mathcal{L} \right)\left(\nabla\log\mathcal{L} \right)^T \Large),
+\end{align*}`
+
+which is asymptotically equivalent to the Hessian. It's often easier to 
+implement because we don't need to take the second derivative.
+
+Fisher Scoring is usually a bit more stable than vanilla Newton-Raphson and
+the initial steps usually "get to where we want" faster. Newton-Raphson and 
+Fisher Scoring updating steps are identical for GLMs under canonical link.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create();
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,198 @@
+---
+title: "Introduction to survival analysis"
+author: "Yue Jiang"
+date: "Duke University"
+output:
+  xaringan::moon_reader:
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    css: "sta440-slides.css"
+    lib_dir: libs/font-awesome
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+## Survival data
+
+In many studies, the outcome of interest is the amount of time from an initial 
+observation until the occurrence of some event of interest.
+
+Typically, the event of interest is called a .vocab[failure] (even if it's a 
+good thing), and the associated time interval between a starting point and 
+failure the .vocab[failure time], .vocab[survival time], or .vocab[event time].
+
+Examples of survival data:
+
+- example 1
+- example 2
+- example 3
+
+---
+
+## Digoxin
+
+```{r, echo=FALSE, fig.align = "center", out.width = '70%'} 
+knitr::include_graphics("img/02/digoxin.png")
+```
+
+.pull-left[
+```{r, echo=FALSE, fig.align = "left", out.width = '100%'} 
+knitr::include_graphics("img/02/foxglove.jpg")
+```
+]
+
+.pull-right[
+- Foxgloves have been used in medicine for centuries
+- Digoxin (the active ingredient) first isolated in 1930 
+- Traditionally used for heart arrhythmia and heart failure
+- One of the most prescribed drugs globally
+]
+
+---
+
+## The DIG Trial
+
+```{r, echo=FALSE, out.width = '120%'} 
+knitr::include_graphics("img/02/dig_trial.png")
+```
+
+Investigators compared the **primary outcome** of the number of days from the
+start of the study to either death or hospitalization from worsening heart
+failure.
+
+---
+
+## The DIG Trial
+
+```{r, echo=FALSE, out.width = '120%'} 
+knitr::include_graphics("img/02/dig_trial.png")
+```
+
+.question[
+How would ***you*** investigate this question, comparing the two treatment 
+groups of digoxin vs. placebo?
+]
+
+---
+
+## Challenges
+
+The unique nature of survival data is that typically not all units are observed
+until their event times:
+- Maybe a patient moved to Fiji and was lost to follow-up
+- Maybe a patient never experienced the primary outcome at all because they got
+hit by a bus
+- Maybe the study was only funded to follow patients for two years after
+enrollment
+
+--
+
+In these cases, observations are said to be .vocab[censored] - we know that 
+they survived until at least their censoring time, but do not know any further
+information.
+
+Not accounting for censoring in an appropriate way leads to **biased** and/or
+**inefficient** analyses.
+
+---
+
+## Notation
+
+Underlying data:
+- $T$: Failure time, a non-negative random variable
+- $C$: Censoring time, a non-negative random variable
+Observed data for individual $i$:
+- $Y_i$: $(T_i \wedge C_i)$, the minimum of $T_i$ and $C_i$
+- $\delta_i$: $1_{(T_i \le C_i)}$, whether we observe a failure
+
+--
+
+If $\delta_i = 0$, then we have .vocab[right-censoring]: the survival time is
+longer than the censoring time.
+
+Commonly, we assume $C_i$ are *i.i.d.* random variables with some distribution
+and that the censoring mechanism is *independent* of the failure mechanism.
+
+--
+
+.center[**Our goal is to make inferential statements about** $T$.]
+
+---
+
+## Characterizing continuous $T$
+
+- Density function: $f(t) = \lim_{\Delta t \to 0^+} \frac{P(t \le T < t + \Delta t)}{\Delta t}$
+
+- Distribution function: $F(t) = P(T \le t) = \int_0^t f(s)ds$
+
+- Survival function: $S(t) = P(T > t) = 1 - F(t)$
+
+- Hazard function: $h(t) = \lim_{\Delta t \to 0^+} \frac{P(t \le T < t + \Delta t | T \ge t)}{\Delta t}$
+
+- Cumulative hazard function: $H(t) = \int_0^t h(s)ds$
+
+Knowing one is equivalent to knowing the others
+
+---
+
+## Basic relationships
+
+Knowing one of $f$, $F$, $S$, $h$, or $H$ uniquely specifies the others. For
+example:
+- $f(T) = h(t)S(t)$
+- $S(T) = \exp(-H(t))$
+- $H(T) = -\log(S(t))$
+- etc.
+
+---
+
+## Survival (or survivor) function
+
+$$S(t) = P(T > t)$$
+- Non-increasing with $S(0) = 1$ and $\lim_{t \to \infty} S(t) = 0$
+- For any given time $t$, a probability
+
+---
+
+## Hazard function
+
+$$h(t) = \lim_{\Delta t \to 0^+} \frac{P(t \le T < t + \Delta t | T \ge t)}{\Delta t}$$
+
+- Instantaneous failure rate for observation, *given* already having survived to
+time $t$
+- **Not** a probability (for continuous $T$)
+- Non-negative and unbounded for all $t$
+- Often more useful interpretations than survival functions
+- Nice analytical properties under right-censoring
+
+---
+
+## Measures of central tendency
+
+- Mean survival:
+$$ E(T) = \int_0^\infty uf(u)du = \int_0^\infty S(u)du$$
+- Mean residual life:
+$$ E(T - t | T > t) = \frac{\int_t^\infty S(u)du}{S(t)}$$
+- Median survival: the smallest $u$ such that $S(u) = 0.5$
+
+---
+
+## Aside: discrete time survival 
+
+Suppose $T$ is discrete, supported on $a_1 < a_2 < \cdots$.  Define:
+$$S(t) = P(T \ge t),$$
+and so we have the *mass* function
+$$f(a_k) = f_k = P(T = a_k),$$
+for $k = 1, 2, \cdots. We have the hazard function (note that it **is** a 
+probability for discrete survival)
+$$h(a_k) = h_k = P(T = a_k | T \ge a_k) = \frac{f_k}{S(a_k)} = \frac{f_k}{f_k + f_{k+1} + \cdots}$$
+and cumulative hazard
+$$H_k = \sum_{k:a_k \le t} h_k$$
+
+--- 
+
+## Estimating the survival curve
+
+The .vocab[Kaplan-Meier estimate] provides an intuitive *non-parametric* 
+estimate of the survival curve

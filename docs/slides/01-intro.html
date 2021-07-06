@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Welcome and Introductions</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Yue Jiang" />
+    <link rel="stylesheet" href="sta440-slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Welcome and Introductions
+### Yue Jiang
+### Duke University
+
+---
+
+
+
+
+
+
+class: center, middle
+
+# Welcome!
+
+---
+
+## What is data science?
+
+&lt;br&gt;&lt;br&gt;
+
+*"Data science is a concept to unify statistics, data analysis, machine learning and their related methods in order to understand and analyze actual phenomena with data. It employs techniques and theories drawn from many fields within the context of &lt;font class="vocab"&gt;mathematics, statistics, information science, and computer science&lt;/font&gt;."*
+
+.pull-right[
+[-Wikipedia](https://en.wikipedia.org/wiki/Data_science)
+]
+
+---
+
+class: regular
+
+## Who am I?
+
+&lt;br&gt;
+
+&lt;img src="img/01/bach.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Who am I?
+
+&lt;br&gt;
+
+&lt;img src="img/01/jobsschool.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Who am I?
+
+&lt;br&gt;
+
+&lt;img src="img/01/articles.png" width="120%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Where to find information
+
+.center[
+[Course website available here](https://www2.stat.duke.edu/courses/Fall20/sta199.001/)
+
+&lt;img src="img/01/site.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+(good idea to just bookmark it now...)
+]
+
+---
+
+## Course objectives
+
+- Learn to explore, visualize, and analyze data in a *reproducible* and *shareable* manner
+
+- Gain experience in data wrangling, exploratory data analysis, predictive modeling, and data visualization
+
+- Work on problems and case studies inspired by and based on *real-world questions* and data
+
+- Learn to effectively communicate results through written assignments and final project presentation
+
+---
+
+## Some of what you will learn
+.pull-left[
+
+**Technology:**
+
+- Fundamentals of `R`
+
+- Data visualization and wrangling with `ggplot2` and `dplyr` from the `tidyverse`
+
+- Version control with GitHub
+
+- Reproducible reports with `R` Markdown
+
+- Good code style, functions, and automation
+
+]
+
+.pull-right[
+
+**Statistics:**
+
+- Basics of probability
+
+- Statistical inference and estimation
+
+- Regression modeling
+
+- Classification
+
+- Text and sentiment analysis
+
+]
+
+.center[
+**and so much more!**
+]
+
+
+---
+
+## What have other people done?
+
+- [Analyzed trends in the Billboard Hot 100 over the past half century](https://towardsdatascience.com/billboard-hot-100-analytics-using-data-to-understand-the-shift-in-popular-music-in-the-last-60-ac3919d39b49)
+
+- [Created interactive redistricting maps](https://projects.fivethirtyeight.com/redistricting-maps/north-carolina/)
+
+- [Tracked their life via Fitbit](https://livefreeordichotomize.com/2017/12/27/a-year-as-told-by-fitbit/)
+
+- [Artificially composed Bach chorales](https://magenta.tensorflow.org/coconet)
+
+- [Detected metastatic breast cancer from still images](https://ai.googleblog.com/2018/10/applying-deep-learning-to-metastatic.html)
+
+---
+
+class: middle, center
+
+## Some housekeeping...
+
+---
+
+## Create a GitHub account
+
+.instructions[
+Go to https://github.com/ and create an account (unless you already have one). When you're done, click [here](https://duke.qualtrics.com/jfe/form/SV_bxqV6bAbLiYxJ2d) and enter your GitHub username.
+]
+
+Tips for creating a username from [Happy Git with R](http://happygitwithr.com/github-acct.html#username-advice).
+
+- Incorporate your actual name!
+- Reuse your username from other contexts if you can (e.g., Twitter).
+- Pick a username you will be comfortable revealing to your future boss.
+- Shorter is better than longer.
+- Be as unique as possible in as few characters as possible.
+- Make it timeless. Don’t highlight your current university, employer, or place 
+of residence.
+- Avoid words laden with special meaning in programming, like `NA`.
+
+---
+
+## Access RStudio
+
+1. Access the Duke-managed Docker containers by clicking [here](https://vm-manage.oit.duke.edu/containers), 
+and log in with your NetID and password. 
+2. Click on the link to reserve a container for 
+**RStudio - statistics application with Rmarkdown and knitr support**. You will
+see a link appear similar to the one below:
+
+    &lt;img src="img/01/dockers.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+3. Click on the link to log in to your RStudio environment. 
+
+Note that the **very first time** you run RStudio, it can take a while to load
+because it is setting up some of its files (it can take a few minutes). Please
+be patient! 
+
+---
+
+## In-class activity
+
+&lt;img src="img/01/un.jpeg" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+class: middle, center
+
+## Course Policies
+
+---
+
+## Course policies
+
+&lt;img src="img/01/site.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+.center[
+The course syllabus/policies are available [here](https://www2.stat.duke.edu/courses/Fall20/sta199.001/policies.html). 
+**Read them carefully!**
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,69 @@
+---
+title: "STA 199 Sticker"
+author: "Maria Tackett"
+date: "01/02/2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning=FALSE,
+                      message=FALSE)
+```
+
+This document contains the code to make the sticker for [STA 199: Intro to Data Science](link goes here). The following packages are used in this project: 
+
+```{r packages}
+library(hexSticker)
+library(tidyverse)
+library(knitr)
+library(survminer)
+library(sysfonts)
+library(ggfortify)
+library(survival)
+```
+
+## Kaplan-Meier Plot
+
+We create a Kaplan-Meier plot examining survival time for characters by gender
+in Game of Thrones (well, the first seven seasons, at least! Let's pretend that
+the eighth season didn't happen...).
+
+```{r km-plot}
+
+
+got <- read.csv("C:/Users/Yue/Projects/Guest lecture/got.csv")
+
+got$screen <- got$s1_screenTime + got$s2_screenTime + got$s3_screenTime + 
+        got$s4_screenTime + got$s5_screenTime + got$s6_screenTime +
+        got$s7_screenTime
+
+fit2 <- survfit(Surv(duration_in_episodes, is_dead) ~ gender, 
+                data = got[got$gender != "",])
+p7 <- autoplot(fit2) + 
+        theme_void() + 
+        theme(legend.position = "none",
+              plot.title = element_blank(),
+              axis.title.x = element_blank(),
+              axis.title.y = element_blank(),
+              axis.text.x = element_blank(),
+              axis.text.y = element_blank()) +
+        xlim(c(0, 66))
+```
+
+## Make Sticker
+
+```{r add-font}
+# add font to be used in sticker function
+font_add_google("Open Sans", "open")
+```
+
+```{r make-sticker}
+# create and save sticker
+sticker(p7, package="STA 198",p_color="#012169", p_family="open", p_size=17.5, p_y=0.55, s_x=1, s_y=1.1, s_width=1.3, s_height=1, h_fill = "#FFFFFF", h_color="#012169", h_size =0.8, filename="sta199_sticker.png")
+```
+
+```{r display-sticker}
+#display final sticker
+include_graphics("static/img/sta199_sticker.png")
+```

@@ -1,0 +1,115 @@
+---
+title: "Case study 02: MLB batting averages"
+subtitle: "STA 440 Spring 2021 (Jiang)"
+output:
+  rmarkdown::html_document:
+    css: "./sta440-project.css"
+    toc: TRUE
+    toc_float: TRUE
+---
+<br>
+
+```{r, out.width = "350%", eval=TRUE, echo=FALSE, warning = F, message = F}
+library(knitr)
+include_graphics("img/case-2.jpg")
+```
+
+<b>Photo Credit</b>: Dave Herholz, 
+[CC BY-SA 2.0](https://commons.wikimedia.org/w/index.php?curid=53451875).
+
+# Introduction
+
+Baseball is one of the most popular sports in the US. In baseball, two teams 
+take turns on offense and defense, where the offensive team aims to earn points 
+by primarily by running bases and the defensive team aims to stop them. When a
+team is on the offensive, their players take turns at bat, whereby they aim to
+hit the baseball in order to give their team's players the opportunity to score
+points.
+
+Major League Baseball (MLB) is the main professional baseball organization in 
+the US and had almost 70 million spectators in 2019 [1] with revenues reaching
+over $10 billion [2]. Given the nature of MLB, teams are often eager to sign
+the best players to their teams, at times paying over a million dollars per 
+season for the best players. 
+
+One way$^\star$ in which teams might measure the strength of a player is the
+batting average (AVG), which is given by the number of successful hits divided 
+by the number of times a player had an opportunity at bat. In recent years, the
+league-wide average is around 0.250 (i.e., successfully hitting 25%) [3]. A
+batting average greater than 0.300 is considered excellent. 
+
+MLB franchises are split into the National League and the American League. 
+American League teams allow a "designated hitter," who is a player who bats 
+instead of the pitcher, whereas National League teams require that the pitchers 
+themselves must bat. Keep in mind that pitchers in the National League are still
+signed because they are good at pitching, not because they are good at batting.
+
+# Project objectives
+
+Your objective is to characterize any associations between batting average and
+physical characteristics such as height, weight, and batting hand. Players 
+included in the dataset are those with at least 20 at bats, were active in 2009 
+onward, and were in the National League. Note that the data provided to you do
+not have any information regarding the player's position.
+
+<b>Detailed instructions, the data, and data descriptions are available in the
+course [GitHub repository](https://github.com/sta440-sp21)</b>.
+
+# Learning objectives
+
+**Case-specific goals:**
+
+- Learn how to use the EM algorithm to address certain types of missing data
+problems 
+- Develop technical writing skills with respect to mathematical derivations
+suitable for technical appendices
+
+**Overall class goals:**
+
+- Solidify skills in reproducible research and programming, including version-
+control and collaboration via GitHub
+- Critically think about reasonable analysis approaches in the context of real-
+world data
+- Express statistical models clearly and correctly
+- Develop scientific writing skills by providing clear, concise, data-driven 
+conclusions suitable for allied researchers
+
+# Project timeline
+
+- **Group**: Report and reproducible code
+  - Due Sunday, March 7
+- **Individual**: Peer review and reproduction of results
+  - Due Thursday, March 11
+- **Group**: Revised report and response to reviewers
+  - Due Tuesday, March 16
+- **Individual**: Case team and peer reviewer evaluations
+  - Due Thursday, March 18
+  
+**Note**: each team's GitHub report repository and commit history will also be
+evaluated by the instructor. The GitHub repository must contain the reproducible
+R Markdown document corresponding to the submitted reports, and will be checked
+throughout the course of the case study to ensure all team members are making
+meaningful contributions to the project.
+
+# Extra credit opportunity
+
+An individual extra credit opportunity worth up to 1 absolute percentage point
+to your semester grade is available. The purpose of this extra credit 
+assignment is to build your skills in basic numerical optimization techniques in
+R. Your goal is to manually program a generalized linear regression model that
+predicts whether a baseball player has over a 0.300 batting average *without* 
+resorting to built-in functions like `glm()`.
+
+<b>Detailed instructions, the data, and data descriptions are available in the
+course [GitHub repository](https://github.com/sta440-sp21)</b>.
+
+# References
+
+[1] David Adler. "MLB sees fan growth across the board in 2019." News item published on MLB.com news, Sep. 30, 2019.
+
+[2] Jabari Young. "Major League Baseball revenue for 2019 season hits a record
+$10.7 billion." News item published on CNBC Sports, Dec. 22, 2019.
+
+[3] "Batting Average (AVG)." From the Glossary of Standard Stats on MLB.com.
+
+$^\star$*yes, I'm aware that AVG isn't a great measure of baseball performance!*

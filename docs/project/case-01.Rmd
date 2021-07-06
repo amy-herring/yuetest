@@ -1,0 +1,123 @@
+---
+title: "Case study 01: opioid relapse"
+subtitle: "STA 440 Spring 2021 (Jiang)"
+output:
+  rmarkdown::html_document:
+    css: "./sta440-project.css"
+    toc: TRUE
+    toc_float: TRUE
+---
+<br>
+
+```{r, out.width = "350%", eval=TRUE, echo=FALSE, warning = F, message = F}
+library(knitr)
+include_graphics("img/case-1.png")
+```
+
+# Introduction
+
+Since the 1990s, opioids have become an increasingly common method of pain 
+management in Americans. However, the illicit misuse of opioids has led to a
+public health crisis known colloquially as the "opioid epidemic." In 2017, 
+almost 50,000 Americans died from an opioid overdose [1] and 1.7 million 
+suffered from substance use disorders related to prescription opioids [2], 
+contributing to an estimated total economic burden of $78.5 billion a year [3].
+
+Although drug rehabilitation programs are available to combat the physical and
+psychological dependency on opioid medications, patients often relapse even
+after successful therapy. Lee and Rotrosen et al. conducted a study to compare
+the effectiveness of two drug therapies intended to prevent opioid relapse 
+during drug rehabilitation [4]. This case study is based on their study data,
+which was sponsored by the National Institute on Drug Abuse (NIDA). 
+
+# Project objectives
+
+Your goal is to provide a convincing statistical analysis comparing two
+treatments in the prevention of opioid-relapse after drug rehabilitation:
+extended-release naltrexone (XR-NTX) and buprenorphine-naloxone (BUP-NX). What 
+is the difference, if any, between these two treatments in comparing the
+following factors:
+
+- ...time-to-relapse after receipt of therapy,
+- ...proportion of patients successfully inducted into therapy, and
+- ...safety profile of the two treatments vis-a-vis adverse events?
+
+<b>Detailed instructions, the data, and data descriptions are available in the
+course [GitHub repository](https://github.com/sta440-sp21)</b>.
+
+# Learning objectives
+
+**Case-specific goals:**
+
+- Become familiar with basics of clinical trial design and analysis
+- Learn visualization, inference, and applied modeling of time-to-event outcomes
+- Critically evaluate existing literature and compare work from disparate
+research teams.
+
+**Overall class goals:**
+
+- Solidify skills in reproducible research and programming, including 
+version-control and collaboration via GitHub
+- Critically think about reasonable analysis approaches in the context of 
+real-world data
+- Express statistical models clearly and correctly
+- Develop scientific writing skills by providing clear, concise, data-driven 
+conclusions suitable for allied researchers
+
+# Project timeline
+
+- **Group**: Report, reproducible code, and video
+  - Due Sunday, February 14
+- **Individual**: Peer review and reproduction of results
+  - Due Thursday, February 18
+- **Group**: Revised report and response to reviewers
+  - Due Tuesday, February 23
+- **Individual**: Case team and peer reviewer evaluations
+  - Due Thursday, February 25
+  
+**Note**: each team's GitHub report repository and commit history will also be
+evaluated by the instructor. The GitHub repository must contain the reproducible
+R Markdown document corresponding to the submitted reports, and will be checked
+throughout the course of the case study to ensure all team members are making
+meaningful contributions to the project.
+
+# Extra credit opportunity
+
+An individual extra credit opportunity worth up to 1 absolute percentage point
+to your semester grade is available. The purpose of this extra credit 
+assignment is to further explore reproducible research and survival analysis.
+The goal is to reproduce Tables 1 and 4 from the DIG trial, which examined
+the effect of digoxin on mortality and morbidity in patients with heart 
+failure [6].
+
+With only the published article, supplementary files and analysis dataset, are
+you able to reproduce those tables exactly? Where are the discrepancies, if any?
+
+<b>Detailed instructions, the data, and data descriptions are available in the
+course [GitHub repository](https://github.com/sta440-sp21)</b>.
+
+# References
+
+[1] Scholl L, Seth P, Kariisa M, Wilson N, Baldwin G. "Drug and
+opioid-involved overdose deaths - United States, 2013-2017." MMWR. Morbidity 
+and Mortality Weekly Report. 67 (5152): 1419–1427.
+
+[2] Center for Behavioral Health Statistics and Quality (CBHSQ). 2017 National 
+Survey on Drug Use and Health: Detailed Tables. Rockville, MD: Substance Abuse 
+and Mental Health Services Administration; 2018.
+
+[3] Florence CS, Zhou C, Luo F, Xu L. "The economic burden of prescription 
+opioid overdose, abuse, and dependence in the United States, 2013." Med Care.
+2016; 54(10):901-906. 
+
+[4] Lee JD, Nunes EV Jr., Kovo P, et al. "Comparative effectiveness of extended-
+release naltrexone versus buprenorphine-naloxone for opioid relapse prevention 
+(X:BOT): a multicentre, open-label, randomised controlled trial." Lancet. 2018 
+January 27; 391(10118): 309–318. 
+
+[5] Jones CM, Campopiano M, Baldwin G, McCance-Katz E. "National and state 
+treatment need and capacity for opioid agonist medication-assisted treatment." 
+Am J Public Health. 2015; 105:e55–63.
+
+[6] The Digitalis Investigation Group. "The effect of digoxin on mortality and
+morbidity in patients with heart failure." N Engl J Med 1997; 336:525-533.

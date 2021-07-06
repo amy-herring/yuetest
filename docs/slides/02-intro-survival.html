@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Introduction to survival analysis</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Yue Jiang" />
+    <link rel="stylesheet" href="sta440-slides.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Introduction to survival analysis
+### Yue Jiang
+### Duke University
+
+---
+
+
+## Survival data
+
+In many studies, the outcome of interest is the amount of time from an initial 
+observation until the occurrence of some event of interest.
+
+Typically, the event of interest is called a .vocab[failure] (even if it's a 
+good thing), and the associated time interval between a starting point and 
+failure the .vocab[failure time], .vocab[survival time], or .vocab[event time].
+
+Examples of survival data:
+
+- example 1
+- example 2
+- example 3
+
+---
+
+## Digoxin
+
+&lt;img src="img/02/digoxin.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+.pull-left[
+&lt;img src="img/02/foxglove.jpg" width="100%" style="display: block; margin: auto auto auto 0;" /&gt;
+]
+
+.pull-right[
+- Foxgloves have been used in medicine for centuries
+- Digoxin (the active ingredient) first isolated in 1930 
+- Traditionally used for heart arrhythmia and heart failure
+- One of the most prescribed drugs globally
+]
+
+---
+
+## The DIG Trial
+
+&lt;img src="img/02/dig_trial.png" width="120%" /&gt;
+
+Investigators compared the **primary outcome** of the number of days from the
+start of the study to either death or hospitalization from worsening heart
+failure.
+
+---
+
+## The DIG Trial
+
+&lt;img src="img/02/dig_trial.png" width="120%" /&gt;
+
+.question[
+How would ***you*** investigate this question, comparing the two treatment 
+groups of digoxin vs. placebo?
+]
+
+---
+
+## Challenges
+
+The unique nature of survival data is that typically not all units are observed
+until their event times:
+- Maybe a patient moved to Fiji and was lost to follow-up
+- Maybe a patient never experienced the primary outcome at all because they got
+hit by a bus
+- Maybe the study was only funded to follow patients for two years after
+enrollment
+
+--
+
+In these cases, observations are said to be .vocab[censored] - we know that 
+they survived until at least their censoring time, but do not know any further
+information.
+
+Not accounting for censoring in an appropriate way leads to **biased** and/or
+**inefficient** analyses.
+
+---
+
+## Notation
+
+Underlying data:
+- `\(T\)`: Failure time, a non-negative random variable
+- `\(C\)`: Censoring time, a non-negative random variable
+Observed data for individual `\(i\)`:
+- `\(Y_i\)`: `\((T_i \wedge C_i)\)`, the minimum of `\(T_i\)` and `\(C_i\)`
+- `\(\delta_i\)`: `\(1_{(T_i \le C_i)}\)`, whether we observe a failure
+
+--
+
+If `\(\delta_i = 0\)`, then we have .vocab[right-censoring]: the survival time is
+longer than the censoring time.
+
+Commonly, we assume `\(C_i\)` are *i.i.d.* random variables with some distribution
+and that the censoring mechanism is *independent* of the failure mechanism.
+
+--
+
+.center[**Our goal is to make inferential statements about** `\(T\)`.]
+
+---
+
+## Characterizing continuous `\(T\)`
+
+- Density function: `\(f(t) = \lim_{\Delta t \to 0^+} \frac{P(t \le T &lt; t + \Delta t)}{\Delta t}\)`
+
+- Distribution function: `\(F(t) = P(T \le t) = \int_0^t f(s)ds\)`
+
+- Survival function: `\(S(t) = P(T &gt; t) = 1 - F(t)\)`
+
+- Hazard function: `\(h(t) = \lim_{\Delta t \to 0^+} \frac{P(t \le T &lt; t + \Delta t | T \ge t)}{\Delta t}\)`
+
+- Cumulative hazard function: `\(H(t) = \int_0^t h(s)ds\)`
+
+Knowing one is equivalent to knowing the others
+
+---
+
+## Basic relationships
+
+Knowing one of `\(f\)`, `\(F\)`, `\(S\)`, `\(h\)`, or `\(H\)` uniquely specifies the others. For
+example:
+- `\(f(T) = h(t)S(t)\)`
+- `\(S(T) = \exp(-H(t))\)`
+- `\(H(T) = -\log(S(t))\)`
+- etc.
+
+---
+
+## Survival (or survivor) function
+
+`$$S(t) = P(T &gt; t)$$`
+- Non-increasing with `\(S(0) = 1\)` and `\(\lim_{t \to \infty} S(t) = 0\)`
+- For any given time `\(t\)`, a probability
+
+---
+
+## Hazard function
+
+`$$h(t) = \lim_{\Delta t \to 0^+} \frac{P(t \le T &lt; t + \Delta t | T \ge t)}{\Delta t}$$`
+
+- Instantaneous failure rate for observation, *given* already having survived to
+time `\(t\)`
+- **Not** a probability (for continuous `\(T\)`)
+- Non-negative and unbounded for all `\(t\)`
+- Often more useful interpretations than survival functions
+- Nice analytical properties under right-censoring
+
+---
+
+## Measures of central tendency
+
+- Mean survival:
+$$ E(T) = \int_0^\infty uf(u)du = \int_0^\infty S(u)du$$
+- Mean residual life:
+$$ E(T - t | T &gt; t) = \frac{\int_t^\infty S(u)du}{S(t)}$$
+- Median survival: the smallest `\(u\)` such that `\(S(u) = 0.5\)`
+
+---
+
+## Aside: discrete time survival 
+
+Suppose `\(T\)` is discrete, supported on `\(a_1 &lt; a_2 &lt; \cdots\)`.  Define:
+`$$S(t) = P(T \ge t),$$`
+and so we have the *mass* function
+`$$f(a_k) = f_k = P(T = a_k),$$`
+for $k = 1, 2, \cdots. We have the hazard function (note that it **is** a 
+probability for discrete survival)
+`$$h(a_k) = h_k = P(T = a_k | T \ge a_k) = \frac{f_k}{S(a_k)} = \frac{f_k}{f_k + f_{k+1} + \cdots}$$`
+and cumulative hazard
+`$$H_k = \sum_{k:a_k \le t} h_k$$`
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,241 @@
+---
+title: "Welcome and Introductions"
+author: "Yue Jiang"
+date: "Duke University"
+output:
+  xaringan::moon_reader:
+    mathjax: "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_HTMLorMML"
+    css: "sta440-slides.css"
+    logo: img/sta199-sticker-icon.png
+    lib_dir: libs/font-awesome
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+# R options
+options(
+  htmltools.dir.version = FALSE, # for blogdown
+  show.signif.stars = FALSE,     # for regression output
+  warm = 1
+  )
+# Set dpi and height for images
+library(knitr)
+opts_chunk$set(fig.height = 2.65, dpi = 300) 
+# ggplot2 color palette with gray
+color_palette <- list(gray = "#999999", 
+                      salmon = "#E69F00", 
+                      lightblue = "#56B4E9", 
+                      green = "#009E73", 
+                      yellow = "#F0E442", 
+                      darkblue = "#0072B2", 
+                      red = "#D55E00", 
+                      purple = "#CC79A7")
+
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(
+	fig.align = "center",
+	fig.height = 3.75,
+	fig.width = 6.25,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(rvest)
+```
+
+class: center, middle
+
+# Welcome!
+
+---
+
+
+---
+
+class: regular
+
+## Who am I?
+
+<br>
+
+```{r, echo=FALSE,out.width = '90%'} 
+knitr::include_graphics("img/01/bach.png")
+```
+
+---
+
+## Who am I?
+
+<br>
+
+```{r, echo=FALSE,out.width = '90%'} 
+knitr::include_graphics("img/01/jobsschool.png")
+```
+
+---
+
+## Who am I?
+
+<br>
+
+```{r, echo=FALSE,out.width = '120%'} 
+knitr::include_graphics("img/01/articles.png")
+```
+
+---
+
+## Where to find information
+
+.center[
+[Course website available here](https://www2.stat.duke.edu/courses/Fall20/sta199.001/)
+
+```{r, echo=FALSE,out.width = '90%'} 
+knitr::include_graphics("img/01/site.png")
+```
+
+(good idea to just bookmark it now...)
+]
+
+---
+
+## Course objectives
+
+- Learn to explore, visualize, and analyze data in a *reproducible* and *shareable* manner
+
+- Gain experience in data wrangling, exploratory data analysis, predictive modeling, and data visualization
+
+- Work on problems and case studies inspired by and based on *real-world questions* and data
+
+- Learn to effectively communicate results through written assignments and final project presentation
+
+---
+
+## Some of what you will learn
+.pull-left[
+
+**Technology:**
+
+- Fundamentals of `R`
+
+- Data visualization and wrangling with `ggplot2` and `dplyr` from the `tidyverse`
+
+- Version control with GitHub
+
+- Reproducible reports with `R` Markdown
+
+- Good code style, functions, and automation
+
+]
+
+.pull-right[
+
+**Statistics:**
+
+- Basics of probability
+
+- Statistical inference and estimation
+
+- Regression modeling
+
+- Classification
+
+- Text and sentiment analysis
+
+]
+
+.center[
+**and so much more!**
+]
+
+
+---
+
+## What have other people done?
+
+- [Analyzed trends in the Billboard Hot 100 over the past half century](https://towardsdatascience.com/billboard-hot-100-analytics-using-data-to-understand-the-shift-in-popular-music-in-the-last-60-ac3919d39b49)
+
+- [Created interactive redistricting maps](https://projects.fivethirtyeight.com/redistricting-maps/north-carolina/)
+
+- [Tracked their life via Fitbit](https://livefreeordichotomize.com/2017/12/27/a-year-as-told-by-fitbit/)
+
+- [Artificially composed Bach chorales](https://magenta.tensorflow.org/coconet)
+
+- [Detected metastatic breast cancer from still images](https://ai.googleblog.com/2018/10/applying-deep-learning-to-metastatic.html)
+
+---
+
+class: middle, center
+
+## Some housekeeping...
+
+---
+
+## Create a GitHub account
+
+.instructions[
+Go to https://github.com/ and create an account (unless you already have one). When you're done, click [here](https://duke.qualtrics.com/jfe/form/SV_bxqV6bAbLiYxJ2d) and enter your GitHub username.
+]
+
+Tips for creating a username from [Happy Git with R](http://happygitwithr.com/github-acct.html#username-advice).
+
+- Incorporate your actual name!
+- Reuse your username from other contexts if you can (e.g., Twitter).
+- Pick a username you will be comfortable revealing to your future boss.
+- Shorter is better than longer.
+- Be as unique as possible in as few characters as possible.
+- Make it timeless. Don’t highlight your current university, employer, or place 
+of residence.
+- Avoid words laden with special meaning in programming, like `NA`.
+
+---
+
+## Access RStudio
+
+1. Access the Duke-managed Docker containers by clicking [here](https://vm-manage.oit.duke.edu/containers), 
+and log in with your NetID and password. 
+2. Click on the link to reserve a container for 
+**RStudio - statistics application with Rmarkdown and knitr support**. You will
+see a link appear similar to the one below:
+
+    ```{r, echo=FALSE,out.width = '50%'} 
+    knitr::include_graphics("img/01/dockers.png")
+    ```
+
+3. Click on the link to log in to your RStudio environment. 
+
+Note that the **very first time** you run RStudio, it can take a while to load
+because it is setting up some of its files (it can take a few minutes). Please
+be patient! 
+
+---
+
+## In-class activity
+
+```{r, echo=FALSE,out.width = '90%'} 
+knitr::include_graphics("img/01/un.jpeg")
+```
+
+---
+
+class: middle, center
+
+## Course Policies
+
+---
+
+## Course policies
+
+```{r, echo=FALSE,out.width = '90%'} 
+knitr::include_graphics("img/01/site.png")
+```
+
+.center[
+The course syllabus/policies are available [here](https://www2.stat.duke.edu/courses/Fall20/sta199.001/policies.html). 
+**Read them carefully!**
+]
